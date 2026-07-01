@@ -1,0 +1,7 @@
+config DALI_NRF54
+	bool "DALI-2 add-on module for nRF54L15"
+	help
+	  Enables the CPUAPP-side DALI API frontend and IPC transport for the
+	  CPUFLPR runtime.
+
+rsource "cpuflpr/Kconfig.flpr"

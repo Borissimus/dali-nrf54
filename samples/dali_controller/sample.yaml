@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+
+sample:
+  name: DALI nRF54 controller
+  description: CPUAPP controller sample that drives the FLPR DALI API over IPC.
+common:
+  platform_allow:
+    - nrf54l15dk/nrf54l15/cpuapp
+  tags:
+    - dali
+    - ipc
+tests:
+  sample.dali_nrf54.controller:
+    build_only: true

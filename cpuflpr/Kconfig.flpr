@@ -1,0 +1,38 @@
+choice DALI_FLPR_LOG_LEVEL_CHOICE
+	prompt "FLPR DALI log level"
+	default DALI_FLPR_LOG_INFO
+	help
+	  Select the Zephyr log level used by the FLPR-side DALI runtime.
+	  This controls the amount of diagnostic output emitted by the
+	  CPUFLPR image for the DALI engine and its runtime shell.
+
+	  Use the info level for normal development and the debug level
+	  when tracing discovery, control, or IPC behavior.
+
+config DALI_FLPR_LOG_INFO
+	bool "Info"
+	help
+	  Enable informational, warning, and error logging for the FLPR
+	  DALI runtime.
+
+	  This is the default setting for normal application use when the
+	  extra detail from debug logs is not needed.
+
+config DALI_FLPR_LOG_DEBUG
+	bool "Debug"
+	help
+	  Enable debug, informational, warning, and error logging for the
+	  FLPR DALI runtime.
+
+	  Use this level when tracing the internal sequencing of the FLPR
+	  DALI engine during integration or hardware bring-up.
+
+endchoice
+
+config DALI_FLPR_LOG_LEVEL
+	int
+	default 3 if DALI_FLPR_LOG_INFO
+	default 4 if DALI_FLPR_LOG_DEBUG
+	help
+	  Internal numeric log level used by LOG_MODULE_REGISTER() for FLPR
+	  DALI modules.

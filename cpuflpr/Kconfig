@@ -1,0 +1,5 @@
+mainmenu "DALI nRF54 FLPR runtime"
+
+source "Kconfig.zephyr"
+
+rsource "Kconfig.flpr"

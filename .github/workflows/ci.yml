@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pre-review:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          path: app
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Set up Zephyr workspace
+        uses: zephyrproject-rtos/action-zephyr-setup@v1
+        with:
+          app-path: app
+          toolchains: arm-zephyr-eabi:riscv64-zephyr-elf
+
+      - name: Run pre-review checks
+        working-directory: app
+        env:
+          BASE_REV: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || 'HEAD~1' }}
+        run: ./scripts/pre_review.sh
+
+      - name: Verify clean tree
+        working-directory: app
+        run: |
+          git diff --exit-code
+          git diff --cached --exit-code
+
+      - name: Upload pre-review artifacts
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: pre-review-artifacts
+          path: |
+            app/build-pre-review/compliance.xml
+            app/build-pre-review/twister-out/twister.json
+            app/build-pre-review/twister-out/twister.xml
+            app/build-pre-review/twister-out/twister_report.xml
+          if-no-files-found: ignore

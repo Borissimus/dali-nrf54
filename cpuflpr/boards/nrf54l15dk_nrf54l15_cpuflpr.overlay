@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+
+/ {
+	zephyr,user {
+		dali-rx-gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+		dali-tx-gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
+	};
+};

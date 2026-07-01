@@ -1,0 +1,8 @@
+build*
+twister-out*/
+*.pyc
+__pycache__/
+.venv/
+.west/
+zephyr/blobs/
+cpuflpr/lib/nrf54l15/*.a

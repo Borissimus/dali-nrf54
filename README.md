@@ -131,6 +131,20 @@ python -m pip install \
   -r bootloader/mcuboot/scripts/requirements.txt
 ```
 
+Before building, activate the virtual environment and export the Zephyr SDK
+path:
+
+```sh
+source .venv/bin/activate
+export ZEPHYR_SDK_INSTALL_DIR=/home/<user>/toolchains/zephyr-sdk-1.0.1
+```
+
+The repository also includes a local helper script:
+
+```sh
+source env.sh
+```
+
 If the repository has already been cloned manually into the workspace, initialize
 west from the local checkout instead:
 

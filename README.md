@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: Copyright (c) 2026 Borys Nykytiuk
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # dali-nrf54
 
 `dali-nrf54` is an external nRF Connect SDK / Zephyr add-on module for DALI-2
@@ -90,13 +95,13 @@ sudo apt install -y \
   python3-pip
 ```
 
-Install Zephyr SDK `0.16.8`:
+Install Zephyr SDK `1.0.1`:
 
 ```sh
 cd ~/Downloads
-wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.8/zephyr-sdk-0.16.8_linux-x86_64.tar.xz
-tar -xf zephyr-sdk-0.16.8_linux-x86_64.tar.xz
-cd zephyr-sdk-0.16.8
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v1.0.1/zephyr-sdk-1.0.1_linux-x86_64_minimal.tar.xz
+tar -xf zephyr-sdk-1.0.1_linux-x86_64_minimal.tar.xz
+cd zephyr-sdk-1.0.1
 ./setup.sh
 ```
 
@@ -110,9 +115,9 @@ mkdir dali_ws
 cd dali_ws
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -U pip west
+python -m pip install -U pip west requests jsonschema
 
-west init -m git@github.com:Borissimus/dali-nrf54.git .
+west init -m https://github.com/Borissimus/dali-nrf54.git .
 west update
 west blobs fetch dali-nrf54
 ```
@@ -179,8 +184,8 @@ The script performs:
 - a pristine sysbuild of `samples/dali_controller`,
 - a `twister` build-only run for the sample,
 - `checkpatch` on `HEAD~1..HEAD`,
-- `check_compliance` on `HEAD~1..HEAD` with `KconfigBasicNoModules`
-  excluded for the NCS workspace case.
+- `check_compliance` on `HEAD~1..HEAD` with `KconfigBasicNoModules` and
+  `SysbuildKconfigBasicNoModules` excluded for the NCS workspace case.
 
 Generated reports and intermediate artifacts are stored under:
 

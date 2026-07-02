@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright (c) 2026 Borys Nykytiuk
 set -uo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -106,6 +107,7 @@ run_compliance_step() {
 
     python3 "${COMPLIANCE}" \
         -e KconfigBasicNoModules \
+        -e SysbuildKconfigBasicNoModules \
         -c "${BASE_REV}..HEAD" \
         -o "${COMPLIANCE_OUT}" || rc=$?
 

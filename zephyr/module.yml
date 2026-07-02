@@ -1,22 +1,25 @@
+# Copyright (c) 2026 Borys Nykytiuk
+# SPDX-License-Identifier: Apache-2.0
+
 name: dali-nrf54
 build:
   cmake: .
   kconfig: Kconfig
 blobs:
   - path: cpuflpr/lib/nrf54l15/libdali_flpr_engine_release.a
-    sha256: 1fcaac78a90cae56204d360322a6925e5d3b5e292d61819d01c3e5df347ec311
+    sha256: 92f86afdc5d9adba097993c4709c5021cf82c7654614bf5426645bf538dcaa07
     type: lib
-    version: "0.1.1"
+    version: "0.1.2"
     license-path: ./LICENSE
-    url: https://github.com/Borissimus/dali-flpr-engine-blobs/releases/download/v0.1.1/release.a
+    url: https://github.com/Borissimus/dali-flpr-engine-blobs/releases/download/v0.1.2/release.a
     description: Prebuilt FLPR DALI engine library for nrf54l15/cpuflpr
     doc-url: https://github.com/Borissimus/dali-flpr-engine-blobs
   - path: cpuflpr/lib/nrf54l15/libdali_flpr_engine_debug.a
-    sha256: 193cf5827bdafb3320cec4ea7628c8291ed1c7425f3325ff842c7eb4d604b7a3
+    sha256: 2c09ff22b30f38f05ec7c122814589b27bae1c7f951b6610f3cb4de08b440872
     type: lib
-    version: "0.1.1"
+    version: "0.1.2"
     license-path: ./LICENSE
-    url: https://github.com/Borissimus/dali-flpr-engine-blobs/releases/download/v0.1.1/debug.a
+    url: https://github.com/Borissimus/dali-flpr-engine-blobs/releases/download/v0.1.2/debug.a
     description: Prebuilt FLPR DALI engine debug library for nrf54l15/cpuflpr
     doc-url: https://github.com/Borissimus/dali-flpr-engine-blobs
 samples:

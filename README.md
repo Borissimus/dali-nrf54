@@ -3,15 +3,26 @@ SPDX-FileCopyrightText: Copyright (c) 2026 Borys Nykytiuk
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# dali-nrf54
+# DALI-2 lighting control for the nRF54L15
 
-`dali-nrf54` is an external nRF Connect SDK / Zephyr add-on module for DALI-2
-control on the nRF54L15 DK.
+`dali-nrf54` is an external nRF Connect SDK / Zephyr add-on that brings full
+DALI-2 lighting control to the Nordic nRF54L15. It splits the workload across
+the chip's two cores: your application and BLE connectivity run on Cortex-M33,
+while the FLPR RISC-V co-processor handles DALI bus timing in real time, so
+lighting commands stay precise without slowing down the rest of your app.
+
+The add-on ships with a ready-to-run controller sample and a high-level API for
+turning devices on and off, dimming, grouping, and querying status, so you can
+build DALI-2 products without writing low-level protocol code.
 
 The current implementation targets:
 
 - `nrf54l15dk/nrf54l15/cpuapp`
 - `nrf54l15dk/nrf54l15/cpuflpr`
+
+Developed by the N-iX embedded engineering team in collaboration with Nordic
+Semiconductor. Learn more about N-iX's embedded and IoT engineering work at
+[n-ix.com](http://n-ix.com).
 
 ## Architecture
 

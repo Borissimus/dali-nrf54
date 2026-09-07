@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
 
 / {
 	reserved-memory {
 		#address-cells = <1>;
 		#size-cells = <1>;
-
-		cpuflpr_code_partition: image@165000 {
-			reg = <0x165000 DT_SIZE_K(96)>;
-		};
 
 		sram_rx: memory@20018000 {
 			reg = <0x20018000 0x0800>;
@@ -41,7 +38,27 @@
 };
 
 &cpuapp_rram {
-	reg = <0x0 DT_SIZE_K(1444)>;
+	/* nRF54L15 has 1524 KB of usable RRAM; the FLPR image below takes the
+	 * top 96 KB (0x165000-0x17D000), so CPUAPP gets the remaining 1428 KB.
+	 * Mirrors Nordic's own nordic-flpr snippet 1:1 (see
+	 * zephyr/snippets/nordic/nordic-flpr/soc/nrf54l15_cpuapp.overlay).
+	 */
+	reg = <0x0 DT_SIZE_K(1428)>;
+	ranges = <0x0 0x0 DT_SIZE_K(1428)>;
+
+	/delete-node/ partitions;
+};
+
+&rram_controller {
+	cpuflpr_rram: rram@165000 {
+		compatible = "soc-nv-flash";
+		reg = <0x165000 DT_SIZE_K(96)>;
+		ranges = <0x0 0x165000 DT_SIZE_K(96)>;
+		erase-block-size = <4096>;
+		write-block-size = <16>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+	};
 };
 
 &cpuapp_sram {
@@ -52,7 +69,7 @@
 &cpuflpr_vpr {
 	status = "okay";
 	execution-memory = <&cpuflpr_sram_code_data>;
-	source-memory = <&cpuflpr_code_partition>;
+	source-memory = <&cpuflpr_rram>;
 };
 
 &cpuapp_vevif_rx {
@@ -62,3 +79,6 @@
 &cpuapp_vevif_tx {
 	status = "okay";
 };
+
+#define WITH_FLPR_PARTITIONS
+#include <vendor/nordic/nrf54l15_cpuapp_partition.dtsi>

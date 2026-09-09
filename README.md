@@ -70,6 +70,26 @@ If discovery fails or returns no devices, the demo falls back to broadcast:
 
 CPUAPP button handling includes software debounce.
 
+## Hardware Setup
+
+To run the controller sample on a DALI bus, use:
+
+- an nRF54L15 DK;
+- an external DALI physical-layer interface between the DK's 3.3 V GPIOs and
+  the DALI bus;
+- a DALI bus power supply and at least one DALI control gear.
+
+The current board configuration uses pins on the DK `PORT P1` expansion header:
+
+- `P1.11`: DALI TX, active low;
+- `P1.12`: DALI RX, active high.
+
+Do not connect DK GPIOs directly to the DALI bus. Use a suitable DALI
+transceiver and follow its wiring and power requirements. The
+[Waveshare Pico-DALI2](https://www.waveshare.com/pico-dali2.htm) is one example
+of a DALI-2 interface board. It has a Pico form factor and therefore requires
+separate wiring when used with the nRF54L15 DK.
+
 ## Layout
 
 - `include/dali/`: public API and shared types.

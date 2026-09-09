@@ -208,6 +208,26 @@ Flash from the top-level build directory:
 west flash -d build --runner nrfutil
 ```
 
+### Measure CPU Load
+
+Build with periodic CPU load reporting enabled for both cores:
+
+```sh
+west build -p always \
+  -b nrf54l15dk/nrf54l15/cpuapp \
+  dali-nrf54/samples/dali_controller \
+  -- -DDALI_CPU_LOAD_MEASUREMENT=ON
+```
+
+After initialization, each core reports its non-idle time over the preceding
+10-second interval. The log identifies the reporting core as `cpuapp` or
+`cpuflpr`. This is a total-core measurement, including interrupt handling; it
+does not attribute load to individual threads or DALI operations.
+
+The startup log also reports a CPUAPP `network_setup` window spanning DALI
+discovery and initial level queries. CPUFLPR reports each DALI IPC operation,
+including `discover`.
+
 Expected startup flow:
 
 - CPUAPP starts `dali_controller`

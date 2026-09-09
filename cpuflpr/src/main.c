@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
 #include <dali/dali_api.h>
 
+#if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
+#include "cpu_load_reporter.h"
+#endif
 #include "dali_services_flpr.h"
 
 LOG_MODULE_REGISTER(dali_flpr_main, CONFIG_DALI_FLPR_LOG_LEVEL);
@@ -34,6 +38,9 @@ int main(void)
 	}
 
 	LOG_INF("IPC runtime ready");
+#if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
+	dali_cpu_load_reporter_start();
+#endif
 	while (true) {
 		k_sleep(K_FOREVER);
 	}

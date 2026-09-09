@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
 
 #include <errno.h>
 #include <stdbool.h>
@@ -12,6 +13,9 @@
 #include <dali/dali_api.h>
 
 #include "cpuapp_heartbeat.h"
+#if defined(CONFIG_DALI_CPU_LOAD_REPORTING)
+#include "cpu_load_reporter.h"
+#endif
 
 LOG_MODULE_REGISTER(dali_controller, LOG_LEVEL_INF);
 
@@ -444,6 +448,9 @@ int main(void)
 
 	k_sleep(K_SECONDS(1));
 
+#if defined(CONFIG_DALI_CPU_LOAD_REPORTING)
+	dali_cpu_load_reporter_reset();
+#endif
 	err = dali_api_discover(&dali_discovery);
 	if (err == 0 && dali_discovery.count > 0U) {
 		enum dali_controller_group group;
@@ -502,6 +509,11 @@ int main(void)
 			LOG_WRN("%s", "no devices, broadcast fallback");
 		}
 	}
+
+#if defined(CONFIG_DALI_CPU_LOAD_REPORTING)
+	dali_cpu_load_reporter_report("network_setup");
+	dali_cpu_load_reporter_start();
+#endif
 
 	while (true) {
 		dali_controller_handle_buttons(buttons, ARRAY_SIZE(buttons));

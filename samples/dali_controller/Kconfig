@@ -1,1 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
+
 source "Kconfig.zephyr"
+
+menu "DALI controller diagnostics"
+
+config DALI_CPU_LOAD_REPORTING
+	bool "Periodic CPU load reporting"
+	depends on CPU_LOAD
+	help
+	  Report the CPUAPP non-idle time periodically. This diagnostic option
+	  is enabled through the DALI_CPU_LOAD_MEASUREMENT sysbuild option. It
+	  reports total core activity, including interrupt handling, but does
+	  not attribute load to individual threads or DALI operations.
+
+config DALI_CPU_LOAD_REPORT_INTERVAL_S
+	int "CPU load report interval in seconds"
+	depends on DALI_CPU_LOAD_REPORTING
+	range 1 3600
+	default 10
+	help
+	  Time window used to calculate and report CPUAPP load.
+
+endmenu

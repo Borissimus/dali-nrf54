@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
 
 #include <errno.h>
 #include <string.h>
@@ -11,6 +12,10 @@
 #include <dali/dali_api.h>
 #include <dali/dali_ipc_protocol.h>
 
+#if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
+#include "cpu_load_reporter.h"
+#endif
+
 LOG_MODULE_REGISTER(dali_ipc_server, CONFIG_DALI_FLPR_LOG_LEVEL);
 
 static const struct device *const dali_ipc_instance =
@@ -21,6 +26,36 @@ static struct k_work dali_ipc_request_work;
 static struct dali_ipc_message dali_ipc_pending_request;
 static bool dali_ipc_server_ready;
 static bool dali_ipc_request_valid;
+
+#if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
+static const char *dali_ipc_opcode_name(uint8_t opcode)
+{
+	switch (opcode) {
+	case DALI_IPC_OPCODE_INIT:
+		return "init";
+	case DALI_IPC_OPCODE_DISCOVER:
+		return "discover";
+	case DALI_IPC_OPCODE_OFF_SHORT:
+		return "off_short";
+	case DALI_IPC_OPCODE_RECALL_MAX_SHORT:
+		return "recall_max_short";
+	case DALI_IPC_OPCODE_SET_LEVEL_SHORT:
+		return "set_level_short";
+	case DALI_IPC_OPCODE_QUERY_STATUS_SHORT:
+		return "query_status_short";
+	case DALI_IPC_OPCODE_QUERY_ACTUAL_LEVEL_SHORT:
+		return "query_actual_level_short";
+	case DALI_IPC_OPCODE_OFF_BROADCAST:
+		return "off_broadcast";
+	case DALI_IPC_OPCODE_RECALL_MAX_BROADCAST:
+		return "recall_max_broadcast";
+	case DALI_IPC_OPCODE_SET_LEVEL_BROADCAST:
+		return "set_level_broadcast";
+	default:
+		return "unknown";
+	}
+}
+#endif
 
 static void dali_ipc_server_bound(void *priv)
 {
@@ -61,6 +96,10 @@ static void dali_ipc_server_process(struct k_work *work)
 	response.opcode = request.opcode;
 	response.sequence = request.sequence;
 
+#if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
+	dali_cpu_load_reporter_reset();
+#endif
+
 	switch (request.opcode) {
 	case DALI_IPC_OPCODE_INIT:
 		err = dali_api_init();
@@ -99,6 +138,10 @@ static void dali_ipc_server_process(struct k_work *work)
 		err = -EINVAL;
 		break;
 	}
+
+#if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
+	dali_cpu_load_reporter_report(dali_ipc_opcode_name(request.opcode));
+#endif
 
 	response.rc = err;
 	err = dali_ipc_server_send_response(&response);

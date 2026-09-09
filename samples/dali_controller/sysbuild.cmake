@@ -1,6 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
+
 set(DALI_FLPR_ENGINE_VARIANT "release" CACHE STRING
     "Select the prebuilt CPUFLPR DALI engine variant")
 set_property(CACHE DALI_FLPR_ENGINE_VARIANT PROPERTY STRINGS release debug)
+
+option(DALI_CPU_LOAD_MEASUREMENT
+       "Enable periodic CPU load reporting for CPUAPP and CPUFLPR" OFF)
 
 set(DALI_FLPR_ENGINE_CONF
     "${APP_DIR}/sysbuild/cpuflpr.conf")
@@ -11,6 +17,13 @@ if(DALI_FLPR_ENGINE_VARIANT STREQUAL "debug")
 elseif(NOT DALI_FLPR_ENGINE_VARIANT STREQUAL "release")
   message(FATAL_ERROR
     "Unsupported DALI_FLPR_ENGINE_VARIANT: ${DALI_FLPR_ENGINE_VARIANT}")
+endif()
+
+if(DALI_CPU_LOAD_MEASUREMENT)
+  set(DALI_FLPR_ENGINE_CONF
+      "${DALI_FLPR_ENGINE_CONF};${APP_DIR}/sysbuild/cpuflpr_cpu_load.conf")
+  set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE
+      "${APP_DIR}/sysbuild/cpu_load.conf" CACHE INTERNAL "" FORCE)
 endif()
 
 set(cpuflpr_EXTRA_CONF_FILE ${DALI_FLPR_ENGINE_CONF}

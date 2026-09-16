@@ -13,3 +13,7 @@ target_sources(app PRIVATE
 target_sources_ifdef(CONFIG_DALI_CPU_LOAD_REPORTING app PRIVATE
   src/cpu_load_reporter.c
 )
+
+target_sources_ifdef(CONFIG_DALI_BLE_LOAD app PRIVATE
+  src/ble_load.c
+)

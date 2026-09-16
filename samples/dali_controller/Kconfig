@@ -22,4 +22,24 @@ config DALI_CPU_LOAD_REPORT_INTERVAL_S
 	help
 	  Time window used to calculate and report CPUAPP load.
 
+config DALI_BLE_LOAD
+	bool "BLE advertising workload"
+	depends on BT && BT_BROADCASTER
+	help
+	  Start non-connectable BLE advertising with a 20 ms interval before
+	  DALI setup. This diagnostic workload creates CPUAPP radio activity
+	  while the CPUFLPR configures the DALI network. It is intended for
+	  comparing DALI timing with and without an active BLE controller.
+
+config DALI_IPC_LATENCY_MEASUREMENT
+	bool "IPC latency GPIO measurement"
+	depends on GPIO
+	help
+	  Drive LED2 high while a CPUAPP DALI IPC request is outstanding and
+	  return it low in the response callback. CPUFLPR drives LED3 high when
+	  it receives the request and low immediately before sending the response.
+	  The two markers measure each direction of real DALI API requests. This
+	  diagnostic option is enabled through the
+	  DALI_IPC_LATENCY_MEASUREMENT sysbuild option.
+
 endmenu

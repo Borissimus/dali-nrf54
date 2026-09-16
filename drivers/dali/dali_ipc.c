@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: Copyright (c) 2026 N-iX
 
 #include <errno.h>
 #include <string.h>
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/ipc/ipc_service.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -14,6 +16,59 @@
 LOG_MODULE_REGISTER(dali_ipc, LOG_LEVEL_INF);
 
 #define DALI_IPC_FRONTEND_TIMEOUT K_SECONDS(30)
+
+#if defined(CONFIG_DALI_IPC_LATENCY_MEASUREMENT)
+#define DALI_IPC_LATENCY_NODE DT_ALIAS(led2)
+
+static const struct gpio_dt_spec dali_ipc_latency_gpio =
+	GPIO_DT_SPEC_GET(DALI_IPC_LATENCY_NODE, gpios);
+static bool dali_ipc_latency_ready;
+
+static int dali_ipc_latency_init(void)
+{
+	int err;
+
+	if (dali_ipc_latency_ready) {
+		return 0;
+	}
+
+	if (!gpio_is_ready_dt(&dali_ipc_latency_gpio)) {
+		return -ENODEV;
+	}
+
+	err = gpio_pin_configure_dt(&dali_ipc_latency_gpio,
+				    GPIO_OUTPUT_INACTIVE);
+	if (err != 0) {
+		return err;
+	}
+
+	dali_ipc_latency_ready = true;
+	return 0;
+}
+
+static void dali_ipc_latency_start(void)
+{
+	(void)gpio_pin_set_dt(&dali_ipc_latency_gpio, 1);
+}
+
+static void dali_ipc_latency_stop(void)
+{
+	(void)gpio_pin_set_dt(&dali_ipc_latency_gpio, 0);
+}
+#else
+static int dali_ipc_latency_init(void)
+{
+	return 0;
+}
+
+static void dali_ipc_latency_start(void)
+{
+}
+
+static void dali_ipc_latency_stop(void)
+{
+}
+#endif
 
 static const struct device *const dali_ipc_instance =
 	DEVICE_DT_GET(DT_NODELABEL(ipc0));
@@ -47,6 +102,7 @@ static void dali_ipc_ep_received(const void *data, size_t len, void *priv)
 		return;
 	}
 
+	dali_ipc_latency_stop();
 	memcpy(&dali_ipc_response, msg, sizeof(dali_ipc_response));
 	k_sem_give(&dali_ipc_response_sem);
 }
@@ -65,6 +121,11 @@ static int dali_ipc_frontend_ready(void)
 
 	if (!device_is_ready(dali_ipc_instance)) {
 		return -ENODEV;
+	}
+
+	err = dali_ipc_latency_init();
+	if (err != 0) {
+		return err;
 	}
 
 	dali_ipc_ep_cfg.cb.bound = dali_ipc_ep_bound;
@@ -111,14 +172,17 @@ static int dali_ipc_exchange(struct dali_ipc_message *request,
 	request->type = DALI_IPC_MESSAGE_TYPE_REQUEST;
 	request->sequence = ++dali_ipc_next_sequence;
 
+	dali_ipc_latency_start();
 	err = ipc_service_send(&dali_ipc_endpoint, request, sizeof(*request));
 	if (err < 0) {
+		dali_ipc_latency_stop();
 		k_mutex_unlock(&dali_ipc_lock);
 		return err;
 	}
 
 	err = k_sem_take(&dali_ipc_response_sem, DALI_IPC_FRONTEND_TIMEOUT);
 	if (err != 0) {
+		dali_ipc_latency_stop();
 		k_mutex_unlock(&dali_ipc_lock);
 		return err;
 	}

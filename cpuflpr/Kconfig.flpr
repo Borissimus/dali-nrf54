@@ -56,3 +56,12 @@ config DALI_FLPR_CPU_LOAD_REPORT_INTERVAL_S
 	default 10
 	help
 	  Time window used to calculate and report CPUFLPR load.
+
+config DALI_FLPR_IPC_LATENCY_MEASUREMENT
+	bool "IPC latency GPIO marker"
+	depends on GPIO
+	help
+	  Drive LED3 high when CPUFLPR receives a CPUAPP DALI IPC request and
+	  return it low immediately before sending the response. This diagnostic
+	  option is enabled through the DALI_IPC_LATENCY_MEASUREMENT sysbuild
+	  option.

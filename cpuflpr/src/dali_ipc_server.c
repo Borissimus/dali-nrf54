@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/ipc/ipc_service.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -26,6 +27,46 @@ static struct k_work dali_ipc_request_work;
 static struct dali_ipc_message dali_ipc_pending_request;
 static bool dali_ipc_server_ready;
 static bool dali_ipc_request_valid;
+
+#if defined(CONFIG_DALI_FLPR_IPC_LATENCY_MEASUREMENT)
+#define DALI_IPC_LATENCY_NODE DT_ALIAS(led3)
+
+static const struct gpio_dt_spec dali_ipc_latency_gpio =
+	GPIO_DT_SPEC_GET(DALI_IPC_LATENCY_NODE, gpios);
+
+static int dali_ipc_latency_init(void)
+{
+	if (!gpio_is_ready_dt(&dali_ipc_latency_gpio)) {
+		return -ENODEV;
+	}
+
+	return gpio_pin_configure_dt(&dali_ipc_latency_gpio,
+				     GPIO_OUTPUT_INACTIVE);
+}
+
+static void dali_ipc_latency_start(void)
+{
+	(void)gpio_pin_set_dt(&dali_ipc_latency_gpio, 1);
+}
+
+static void dali_ipc_latency_stop(void)
+{
+	(void)gpio_pin_set_dt(&dali_ipc_latency_gpio, 0);
+}
+#else
+static int dali_ipc_latency_init(void)
+{
+	return 0;
+}
+
+static void dali_ipc_latency_start(void)
+{
+}
+
+static void dali_ipc_latency_stop(void)
+{
+}
+#endif
 
 #if defined(CONFIG_DALI_FLPR_CPU_LOAD_REPORTING)
 static const char *dali_ipc_opcode_name(uint8_t opcode)
@@ -71,6 +112,7 @@ dali_ipc_server_send_response(const struct dali_ipc_message *response)
 		return -EINVAL;
 	}
 
+	dali_ipc_latency_stop();
 	return ipc_service_send(&dali_ipc_endpoint, response,
 				sizeof(*response));
 }
@@ -177,6 +219,7 @@ static void dali_ipc_server_received(const void *data, size_t len, void *priv)
 		return;
 	}
 
+	dali_ipc_latency_start();
 	memcpy(&dali_ipc_pending_request, msg,
 	       sizeof(dali_ipc_pending_request));
 	dali_ipc_request_valid = true;
@@ -197,6 +240,11 @@ int dali_ipc_server_init(void)
 
 	if (!device_is_ready(dali_ipc_instance)) {
 		return -ENODEV;
+	}
+
+	err = dali_ipc_latency_init();
+	if (err != 0) {
+		return err;
 	}
 
 	dali_ipc_ep_cfg.cb.bound = dali_ipc_server_bound;

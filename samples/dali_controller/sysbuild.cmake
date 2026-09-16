@@ -7,9 +7,14 @@ set_property(CACHE DALI_FLPR_ENGINE_VARIANT PROPERTY STRINGS release debug)
 
 option(DALI_CPU_LOAD_MEASUREMENT
        "Enable periodic CPU load reporting for CPUAPP and CPUFLPR" OFF)
+option(DALI_BLE_LOAD
+       "Enable BLE advertising workload on CPUAPP" OFF)
+option(DALI_IPC_LATENCY_MEASUREMENT
+       "Enable CPUAPP-to-CPUFLPR IPC latency measurement" OFF)
 
 set(DALI_FLPR_ENGINE_CONF
     "${APP_DIR}/sysbuild/cpuflpr.conf")
+set(DALI_CPUAPP_CONF)
 
 if(DALI_FLPR_ENGINE_VARIANT STREQUAL "debug")
   set(DALI_FLPR_ENGINE_CONF
@@ -22,8 +27,22 @@ endif()
 if(DALI_CPU_LOAD_MEASUREMENT)
   set(DALI_FLPR_ENGINE_CONF
       "${DALI_FLPR_ENGINE_CONF};${APP_DIR}/sysbuild/cpuflpr_cpu_load.conf")
-  set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE
-      "${APP_DIR}/sysbuild/cpu_load.conf" CACHE INTERNAL "" FORCE)
+  list(APPEND DALI_CPUAPP_CONF "${APP_DIR}/sysbuild/cpu_load.conf")
+endif()
+
+if(DALI_BLE_LOAD)
+  list(APPEND DALI_CPUAPP_CONF "${APP_DIR}/sysbuild/ble_load.conf")
+endif()
+
+if(DALI_IPC_LATENCY_MEASUREMENT)
+  list(APPEND DALI_CPUAPP_CONF "${APP_DIR}/sysbuild/ipc_latency.conf")
+  set(DALI_FLPR_ENGINE_CONF
+      "${DALI_FLPR_ENGINE_CONF};${APP_DIR}/sysbuild/cpuflpr_ipc_latency.conf")
+endif()
+
+if(DALI_CPUAPP_CONF)
+  set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE ${DALI_CPUAPP_CONF}
+      CACHE INTERNAL "" FORCE)
 endif()
 
 set(cpuflpr_EXTRA_CONF_FILE ${DALI_FLPR_ENGINE_CONF}

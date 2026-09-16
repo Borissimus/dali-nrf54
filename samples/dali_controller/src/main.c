@@ -12,6 +12,9 @@
 
 #include <dali/dali_api.h>
 
+#if defined(CONFIG_DALI_BLE_LOAD)
+#include "ble_load.h"
+#endif
 #include "cpuapp_heartbeat.h"
 #if defined(CONFIG_DALI_CPU_LOAD_REPORTING)
 #include "cpu_load_reporter.h"
@@ -439,6 +442,14 @@ int main(void)
 			return err;
 		}
 	}
+
+#if defined(CONFIG_DALI_BLE_LOAD)
+	err = dali_ble_load_start();
+	if (err != 0) {
+		LOG_ERR("BLE load start failed -> %d", err);
+		return err;
+	}
+#endif
 
 	err = dali_api_init();
 	if (err != 0) {

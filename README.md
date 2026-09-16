@@ -5,15 +5,16 @@ SPDX-License-Identifier: Apache-2.0
 
 # DALI-2 lighting control for the nRF54L15
 
-`dali-nrf54` is an external nRF Connect SDK / Zephyr add-on that brings full
+`dali-nrf54` is an external nRF Connect SDK / Zephyr add-on that brings
 DALI-2 lighting control to the Nordic nRF54L15. It splits the workload across
-the chip's two cores: your application and BLE connectivity run on Cortex-M33,
-while the FLPR RISC-V co-processor handles DALI bus timing in real time, so
-lighting commands stay precise without slowing down the rest of your app.
+the chip's two cores: your application and optional connectivity stack run on
+Cortex-M33, while the FLPR RISC-V co-processor handles timing-critical DALI
+bus processing independently of the application.
 
-The add-on ships with a ready-to-run controller sample and a high-level API for
-turning devices on and off, dimming, grouping, and querying status, so you can
-build DALI-2 products without writing low-level protocol code.
+The add-on includes a ready-to-run controller sample and an API for device
+discovery, addressed and broadcast on/off and level control, and status and
+actual-level queries. It is a starting point for product-specific DALI
+integration rather than a complete DALI-2 or D4i certified solution.
 
 The current implementation targets:
 
@@ -51,8 +52,8 @@ At startup the demo:
 - runs DALI discovery and assigns short addresses,
 - caches discovered short addresses on CPUAPP.
 
-If discovery returns one or more devices, the demo uses addressed group mode
-based on short-address parity:
+If discovery returns one or more devices, the demo uses addressed parity mode
+based on short addresses:
 
 - `sw0`: toggle all devices with even short addresses
 - `sw1`: toggle all devices with odd short addresses
